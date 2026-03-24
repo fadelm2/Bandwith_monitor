@@ -65,6 +65,7 @@ const WanCapacityPage = () => {
                             <th style={{ padding: '16px' }}>WAN ID</th>
                             <th style={{ padding: '16px' }}>Capacity (Mbps)</th>
                             <th style={{ padding: '16px' }}>Threshold (%)</th>
+                            <th style={{ padding: '16px' }}>Description</th>
                             <th style={{ padding: '16px', textAlign: 'right' }}>Actions</th>
                         </tr>
                     </thead>
@@ -74,6 +75,9 @@ const WanCapacityPage = () => {
                                 <td style={{ padding: '16px', fontWeight: 'bold' }}>{item.wan_id}</td>
                                 <td style={{ padding: '16px' }}>{item.capacity_mbps}</td>
                                 <td style={{ padding: '16px' }}>{item.threshold_percent}%</td>
+                                <td style={{ padding: '16px', color: 'var(--text-secondary)', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {item.description || <span style={{ fontStyle: 'italic', opacity: 0.4 }}>—</span>}
+                                </td>
                                 <td style={{ padding: '16px', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                                     <button className="btn" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-glow)' }}
                                         onClick={() => { setEditing(item); setFormData(item); setShowModal(true); }}>
