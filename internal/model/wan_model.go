@@ -18,9 +18,10 @@ type WanCapacityResponse struct {
 }
 
 type SearchTrafficRequest struct {
-	WanID string `query:"wan_id"`
-	Page  int    `query:"page"`
-	Size  int    `query:"size"`
+	WanID        string `query:"wan_id"`
+	Page         int    `query:"page"`
+	Size         int    `query:"size"`
+	SinceMinutes int    `query:"since_minutes"` // filter to last N minutes
 }
 
 type WanTrafficResponse struct {

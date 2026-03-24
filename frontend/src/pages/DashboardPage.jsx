@@ -21,7 +21,7 @@ const DashboardPage = ({ onAlertClick }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await api.searchTraffic({ page: 1, size: 100 });
+                const res = await api.searchTraffic({ page: 1, size: 100, since_minutes: 5 });
                 const data = res.data.data || [];
 
                 // Chart: last 20, reversed oldest→newest
