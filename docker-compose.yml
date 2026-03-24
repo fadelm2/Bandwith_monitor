@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    container_name: wan-system-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: network
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  nats:
+    image: nats:latest
+    restart: unless-stopped
+    container_name: wan-system-nats
+    ports:
+      - "4222:4222"
+      - "8222:8222" # Dashboard
+
+volumes:
+  mysql_data:
