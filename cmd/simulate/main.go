@@ -50,14 +50,13 @@ func main() {
 			var rxDelta, txDelta int64
 
 			if i <= 6 {
-				// Target 99% of capacity (Mbps)
-				// Capacity = 100 + i*10
+				// Target 99% of capacity on RX directly
+				// Capacity: WAN-00i = (100 + i*10) Mbps
 				capacityMbps := float64(100 + i*10)
-				targetMbps := 0.99 * capacityMbps
-				// targetMbps = delta_bytes * 8 / (1024 * 1024)
-				// delta_bytes = targetMbps * 1024 * 1024 / 8
-				rxDelta = int64(targetMbps * 1024 * 1024 / 8 * 0.7) // 70% RX
-				txDelta = int64(targetMbps * 1024 * 1024 / 8 * 0.3) // 30% TX
+				targetRxMbps := 0.99 * capacityMbps
+				// bytes = Mbps * 1024 * 1024 / 8
+				rxDelta = int64(targetRxMbps * 1024 * 1024 / 8)
+				txDelta = int64(targetRxMbps * 0.3 * 1024 * 1024 / 8)
 			} else {
 				// Normal random traffic
 				rxDelta = rand.Int63n(5_000_000)

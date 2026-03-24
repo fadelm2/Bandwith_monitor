@@ -6,17 +6,23 @@ import { Layout } from './components/Layout';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [trafficFilter, setTrafficFilter] = useState('');
+
+  const navigateToTraffic = (wanId = '') => {
+    setTrafficFilter(wanId);
+    setCurrentPage('traffic');
+  };
 
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <DashboardPage />;
+        return <DashboardPage onAlertClick={navigateToTraffic} />;
       case 'traffic':
-        return <TrafficPage />;
+        return <TrafficPage initialFilter={trafficFilter} />;
       case 'capacity':
         return <WanCapacityPage />;
       default:
-        return <DashboardPage />;
+        return <DashboardPage onAlertClick={navigateToTraffic} />;
     }
   };
 

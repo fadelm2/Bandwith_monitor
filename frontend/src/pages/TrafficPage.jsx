@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { api } from '../api/client';
 
-const TrafficPage = () => {
+const TrafficPage = ({ initialFilter = '' }) => {
     const [traffic, setTraffic] = useState([]);
     const [paging, setPaging] = useState({ page: 1, size: 10, total_item: 0, total_page: 0 });
-    const [wanFilter, setWanFilter] = useState('');
+    const [wanFilter, setWanFilter] = useState(initialFilter);
 
     const fetchTraffic = async (page = 1) => {
         try {
