@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, Download, Save, X } from 'lucide-react';
+import { Plus, Trash2, Edit2, Download, Save, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '../api/client';
+
+const PAGE_SIZE = 10;
 
 const WanCapacityPage = () => {
     const [capacities, setCapacities] = useState([]);
@@ -9,6 +11,7 @@ const WanCapacityPage = () => {
     const [bulkData, setBulkData] = useState('');
     const [editing, setEditing] = useState(null);
     const [formData, setFormData] = useState({ wan_id: '', capacity_mbps: 0, threshold_percent: 0, description: '' });
+    const [page, setPage] = useState(1);
 
     const fetchCapacities = async () => {
         try {
@@ -20,6 +23,9 @@ const WanCapacityPage = () => {
     };
 
     useEffect(() => { fetchCapacities(); }, []);
+
+    const totalPages = Math.ceil(capacities.length / PAGE_SIZE);
+    const paginated = capacities.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -70,7 +76,7 @@ const WanCapacityPage = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {capacities.map((item) => (
+                        {paginated.map((item) => (
                             <tr key={item.wan_id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                                 <td style={{ padding: '16px', fontWeight: 'bold' }}>{item.wan_id}</td>
                                 <td style={{ padding: '16px' }}>{item.capacity_mbps}</td>
@@ -92,6 +98,35 @@ const WanCapacityPage = () => {
                         ))}
                     </tbody>
                 </table>
+
+                {/* Pagination */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderTop: '1px solid var(--border)' }}>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                        Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, capacities.length)} of {capacities.length} entries
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <button className="btn" disabled={page <= 1} onClick={() => setPage(p => p - 1)}
+                            style={{ background: 'var(--glass)', border: '1px solid var(--border)', opacity: page <= 1 ? 0.4 : 1 }}>
+                            <ChevronLeft size={18} /> Prev
+                        </button>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                            <button key={p} className="btn" onClick={() => setPage(p)}
+                                style={{
+                                    background: p === page ? 'var(--accent-glow)' : 'var(--glass)',
+                                    border: '1px solid var(--border)',
+                                    color: p === page ? '#000' : 'white',
+                                    fontWeight: p === page ? 'bold' : 'normal',
+                                    minWidth: '36px',
+                                }}>
+                                {p}
+                            </button>
+                        ))}
+                        <button className="btn" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}
+                            style={{ background: 'var(--glass)', border: '1px solid var(--border)', opacity: page >= totalPages ? 0.4 : 1 }}>
+                            Next <ChevronRight size={18} />
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {showModal && (
@@ -110,11 +145,11 @@ const WanCapacityPage = () => {
                             <input type="text" className="input-field" value={formData.wan_id} disabled={!!editing}
                                 onChange={(e) => setFormData({ ...formData, wan_id: e.target.value })} required />
 
-                            <label style={{ display: 'block', marginBottom: '8px' }}>Capacity (Mbps)</label>
+                            <label style={{ display: 'block', marginBottom: '8px', marginTop: '16px' }}>Capacity (Mbps)</label>
                             <input type="number" className="input-field" value={formData.capacity_mbps}
                                 onChange={(e) => setFormData({ ...formData, capacity_mbps: parseFloat(e.target.value) })} required />
 
-                            <label style={{ display: 'block', marginBottom: '8px' }}>Threshold (%)</label>
+                            <label style={{ display: 'block', marginBottom: '8px', marginTop: '16px' }}>Threshold (%)</label>
                             <input type="number" className="input-field" value={formData.threshold_percent}
                                 onChange={(e) => setFormData({ ...formData, threshold_percent: parseFloat(e.target.value) })} required />
 
@@ -147,7 +182,7 @@ const WanCapacityPage = () => {
                         <textarea
                             className="input-field"
                             style={{ height: '200px', fontFamily: 'monospace' }}
-                            placeholder='[{"wan_id": "WAN1", "capacity_mbps": 100, "threshold_percent": 80}]'
+                            placeholder='[{"wan_id": "WAN1", "capacity_mbps": 100, "threshold_percent": 80, "description": "Main link"}]'
                             value={bulkData}
                             onChange={(e) => setBulkData(e.target.value)}
                         />
