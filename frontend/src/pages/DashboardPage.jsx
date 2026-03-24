@@ -7,6 +7,16 @@ const DashboardPage = ({ onAlertClick }) => {
     const [trafficData, setTrafficData] = useState([]);
     const [stats, setStats] = useState({ rx: 0, tx: 0 });
     const [alerts, setAlerts] = useState([]);
+    const [descMap, setDescMap] = useState({}); // wan_id -> description
+
+    // Fetch capacity descriptions once
+    useEffect(() => {
+        api.listCapacity().then(res => {
+            const map = {};
+            (res.data.data || []).forEach(c => { map[c.wan_id] = c.description || ''; });
+            setDescMap(map);
+        }).catch(() => { });
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -112,6 +122,7 @@ const DashboardPage = ({ onAlertClick }) => {
                         <thead>
                             <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
                                 <th style={{ padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>WAN ID</th>
+                                <th style={{ padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Description</th>
                                 <th style={{ padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Utilization</th>
                                 <th style={{ padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>RX (Mbps)</th>
                                 <th style={{ padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>TX (Mbps)</th>
@@ -132,6 +143,9 @@ const DashboardPage = ({ onAlertClick }) => {
                                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                 >
                                     <td style={{ padding: '12px 16px', fontWeight: 'bold' }}>{item.wan_id}</td>
+                                    <td style={{ padding: '12px 16px', color: 'var(--text-secondary)', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {descMap[item.wan_id] || <span style={{ fontStyle: 'italic', opacity: 0.4 }}>—</span>}
+                                    </td>
                                     <td style={{ padding: '12px 16px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <div style={{ width: '80px', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
