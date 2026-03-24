@@ -36,7 +36,8 @@ const DashboardPage = ({ onAlertClick }) => {
                 });
                 const highUtil = Object.values(latestPerWan)
                     .filter(item => item.utilization_percent > 80)
-                    .sort((a, b) => b.utilization_percent - a.utilization_percent);
+                    .sort((a, b) => b.utilization_percent - a.utilization_percent)
+                    .slice(0, 10); // Top 10 most critical
                 setAlerts(highUtil);
             } catch (err) {
                 console.error("Failed to fetch traffic", err);
@@ -92,9 +93,21 @@ const DashboardPage = ({ onAlertClick }) => {
             {/* High Utilization Alerts */}
             {alerts.length > 0 && (
                 <div className="glass-card" style={{ marginBottom: '24px', borderLeft: '4px solid var(--danger)' }}>
-                    <h3 style={{ marginBottom: '16px', color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <AlertTriangle size={20} /> High Utilization Alerts
-                    </h3>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h3 style={{ color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <AlertTriangle size={20} /> High Utilization Alerts
+                            <span style={{ fontSize: '0.75rem', background: 'var(--danger)', color: 'white', borderRadius: '12px', padding: '2px 8px', marginLeft: '4px' }}>
+                                {alerts.length} sites
+                            </span>
+                        </h3>
+                        <button
+                            className="btn"
+                            onClick={() => onAlertClick && onAlertClick('')}
+                            style={{ background: 'rgba(255,100,100,0.15)', border: '1px solid var(--danger)', color: 'var(--danger)', fontSize: '0.8rem', padding: '6px 12px' }}
+                        >
+                            View All in Logs →
+                        </button>
+                    </div>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>

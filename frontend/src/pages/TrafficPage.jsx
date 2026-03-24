@@ -59,15 +59,27 @@ const TrafficPage = ({ initialFilter = '' }) => {
                         {traffic.map((item) => (
                             <tr key={item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                                 <td style={{ padding: '16px', color: 'var(--text-secondary)' }}>{new Date(item.created_at).toLocaleString()}</td>
-                                <td style={{ padding: '16px', fontWeight: 'bold' }}>{item.wan_id}</td>
+                                <td
+                                    style={{ padding: '16px', fontWeight: 'bold', cursor: 'pointer', color: 'var(--accent-glow)' }}
+                                    title={`Filter by ${item.wan_id}`}
+                                    onClick={() => setWanFilter(item.wan_id)}
+                                >{item.wan_id}</td>
                                 <td style={{ padding: '16px', color: 'var(--accent-glow)' }}>{item.rx_mbps.toFixed(2)}</td>
                                 <td style={{ padding: '16px', color: 'var(--accent-color)' }}>{item.tx_mbps.toFixed(2)}</td>
                                 <td style={{ padding: '16px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <div
+                                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: item.utilization_percent > 80 ? 'pointer' : 'default' }}
+                                        title={item.utilization_percent > 80 ? `Filter by ${item.wan_id}` : ''}
+                                        onClick={() => item.utilization_percent > 80 && setWanFilter(item.wan_id)}
+                                    >
                                         <div style={{ width: '60px', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
                                             <div style={{ width: `${Math.min(item.utilization_percent, 100)}%`, height: '100%', background: item.utilization_percent > 80 ? 'var(--danger)' : 'var(--success)' }}></div>
                                         </div>
-                                        <span>{item.utilization_percent.toFixed(1)}%</span>
+                                        <span style={{
+                                            color: item.utilization_percent > 80 ? 'var(--danger)' : 'inherit',
+                                            fontWeight: item.utilization_percent > 80 ? 'bold' : 'normal',
+                                            textDecoration: item.utilization_percent > 80 ? 'underline dotted' : 'none',
+                                        }}>{item.utilization_percent.toFixed(1)}%</span>
                                     </div>
                                 </td>
                             </tr>

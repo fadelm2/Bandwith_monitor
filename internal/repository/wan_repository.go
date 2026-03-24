@@ -58,7 +58,7 @@ func (r *WanTrafficRepository) Search(db *gorm.DB, request *model.SearchTrafficR
 		return nil, 0, err
 	}
 
-	if err := query.Offset((request.Page - 1) * request.Size).Limit(request.Size).Order("created_at desc").Find(&entities).Error; err != nil {
+	if err := query.Offset((request.Page - 1) * request.Size).Limit(request.Size).Order("utilization_percent desc, created_at desc").Find(&entities).Error; err != nil {
 		return nil, 0, err
 	}
 
