@@ -6,5 +6,6 @@ type WanCapacity struct {
 	WanID            string `gorm:"primaryKey;column:wan_id"`
 	CapacityMbps     float64
 	ThresholdPercent float64
+	Description      string
 	CreatedAt        time.Time
 }

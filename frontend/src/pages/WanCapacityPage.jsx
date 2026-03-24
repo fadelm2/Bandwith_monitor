@@ -8,7 +8,7 @@ const WanCapacityPage = () => {
     const [showBulkModal, setShowBulkModal] = useState(false);
     const [bulkData, setBulkData] = useState('');
     const [editing, setEditing] = useState(null);
-    const [formData, setFormData] = useState({ wan_id: '', capacity_mbps: 0, threshold_percent: 0 });
+    const [formData, setFormData] = useState({ wan_id: '', capacity_mbps: 0, threshold_percent: 0, description: '' });
 
     const fetchCapacities = async () => {
         try {
@@ -52,7 +52,7 @@ const WanCapacityPage = () => {
                     <button className="btn" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }} onClick={() => setShowBulkModal(true)}>
                         <Download size={20} /> Bulk Update
                     </button>
-                    <button className="btn btn-primary" onClick={() => { setEditing(null); setFormData({ wan_id: '', capacity_mbps: 0, threshold_percent: 0 }); setShowModal(true); }}>
+                    <button className="btn btn-primary" onClick={() => { setEditing(null); setFormData({ wan_id: '', capacity_mbps: 0, threshold_percent: 0, description: '' }); setShowModal(true); }}>
                         <Plus size={20} /> Add Capacity
                     </button>
                 </div>
@@ -113,6 +113,12 @@ const WanCapacityPage = () => {
                             <label style={{ display: 'block', marginBottom: '8px' }}>Threshold (%)</label>
                             <input type="number" className="input-field" value={formData.threshold_percent}
                                 onChange={(e) => setFormData({ ...formData, threshold_percent: parseFloat(e.target.value) })} required />
+
+                            <label style={{ display: 'block', marginBottom: '8px', marginTop: '16px' }}>Description</label>
+                            <textarea className="input-field" rows={3} value={formData.description || ''}
+                                placeholder="Optional description for this WAN link..."
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                style={{ resize: 'vertical', fontFamily: 'inherit' }} />
 
                             <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '16px' }}>
                                 <Save size={20} /> {editing ? 'Update' : 'Create'} Capacity

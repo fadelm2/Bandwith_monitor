@@ -6,12 +6,14 @@ type WanCapacityRequest struct {
 	WanID            string  `json:"wan_id"`
 	CapacityMbps     float64 `json:"capacity_mbps"`
 	ThresholdPercent float64 `json:"threshold_percent"`
+	Description      string  `json:"description"`
 }
 
 type WanCapacityResponse struct {
 	WanID            string    `json:"wan_id"`
 	CapacityMbps     float64   `json:"capacity_mbps"`
 	ThresholdPercent float64   `json:"threshold_percent"`
+	Description      string    `json:"description"`
 	CreatedAt        time.Time `json:"created_at"`
 }
 

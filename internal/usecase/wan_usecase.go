@@ -37,6 +37,7 @@ func (c *WanUseCase) CreateCapacity(ctx context.Context, request *model.WanCapac
 		WanID:            request.WanID,
 		CapacityMbps:     request.CapacityMbps,
 		ThresholdPercent: request.ThresholdPercent,
+		Description:      request.Description,
 		CreatedAt:        time.Now(),
 	}
 
@@ -64,6 +65,7 @@ func (c *WanUseCase) UpdateCapacity(ctx context.Context, request *model.WanCapac
 
 	entity.CapacityMbps = request.CapacityMbps
 	entity.ThresholdPercent = request.ThresholdPercent
+	entity.Description = request.Description
 
 	if err := c.WanCapacityRepository.Update(tx, &entity); err != nil {
 		c.Log.Warnf("Failed to update capacity: %v", err)
