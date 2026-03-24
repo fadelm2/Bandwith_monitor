@@ -50,7 +50,7 @@ func (r *WanTrafficRepository) Search(db *gorm.DB, request *model.SearchTrafficR
 
 	query := db.Model(&entity.WanTraffic{})
 	if request.WanID != "" {
-		query = query.Where("wan_id = ?", request.WanID)
+		query = query.Where("wan_id LIKE ?", "%"+request.WanID+"%")
 	}
 
 	var total int64

@@ -4,7 +4,7 @@ import "time"
 
 type WanTraffic struct {
 	ID                 uint   `gorm:"primaryKey"`
-	WanID              string `gorm:"index"`
+	WanID              string `gorm:"index;column:wan_id"`
 	Hostname           string
 	InterfaceName      string
 	RxMbps             float64

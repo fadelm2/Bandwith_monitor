@@ -29,10 +29,17 @@ const TrafficPage = () => {
                     <Search size={18} color="var(--text-secondary)" />
                     <input
                         type="text"
-                        placeholder="Filter WAN ID..."
+                        placeholder="Filter WAN ID... (e.g. 003 or wan-003)"
                         value={wanFilter}
-                        onChange={(e) => setWanFilter(e.target.value)}
-                        style={{ background: 'transparent', border: 'none', color: 'white', padding: '8px', outline: 'none' }}
+                        onChange={(e) => {
+                            let val = e.target.value.toUpperCase();
+                            // If user types only digits, auto-prefix WAN-
+                            if (/^\d+$/.test(val)) {
+                                val = 'WAN-' + val;
+                            }
+                            setWanFilter(val);
+                        }}
+                        style={{ background: 'transparent', border: 'none', color: 'white', padding: '8px', outline: 'none', width: '200px' }}
                     />
                 </div>
             </div>
