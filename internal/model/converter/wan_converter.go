@@ -10,6 +10,7 @@ func WanCapacityToResponse(wan *entity.WanCapacity) *model.WanCapacityResponse {
 		WanID:            wan.WanID,
 		CapacityMbps:     wan.CapacityMbps,
 		ThresholdPercent: wan.ThresholdPercent,
+		Description:      wan.Description,
 		CreatedAt:        wan.CreatedAt,
 	}
 }
