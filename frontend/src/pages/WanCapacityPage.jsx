@@ -12,6 +12,7 @@ const WanCapacityPage = () => {
     const [editing, setEditing] = useState(null);
     const [formData, setFormData] = useState({ wan_id: '', capacity_mbps: 0, threshold_percent: 0, description: '' });
     const [page, setPage] = useState(1);
+    const [search, setSearch] = useState('');
 
     const fetchCapacities = async () => {
         try {
@@ -24,8 +25,12 @@ const WanCapacityPage = () => {
 
     useEffect(() => { fetchCapacities(); }, []);
 
-    const totalPages = Math.ceil(capacities.length / PAGE_SIZE);
-    const paginated = capacities.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    const filtered = capacities.filter(item =>
+        item.wan_id.toLowerCase().includes(search.toLowerCase()) ||
+        (item.description || '').toLowerCase().includes(search.toLowerCase())
+    );
+    const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+    const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -54,7 +59,20 @@ const WanCapacityPage = () => {
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <h1>WAN <span style={{ color: 'var(--accent-glow)' }}>Capacity</span> MGMT</h1>
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--glass)', border: '1px solid var(--border)', borderRadius: '8px', padding: '8px 12px' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                        <input
+                            type="text"
+                            placeholder="Filter by WAN ID or Description..."
+                            value={search}
+                            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                            style={{ background: 'transparent', border: 'none', color: 'white', outline: 'none', width: '240px', fontSize: '0.875rem' }}
+                        />
+                        {search && (
+                            <button onClick={() => { setSearch(''); setPage(1); }} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '0' }}>✕</button>
+                        )}
+                    </div>
                     <button className="btn" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }} onClick={() => setShowBulkModal(true)}>
                         <Download size={20} /> Bulk Update
                     </button>
@@ -102,7 +120,8 @@ const WanCapacityPage = () => {
                 {/* Pagination */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderTop: '1px solid var(--border)' }}>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                        Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, capacities.length)} of {capacities.length} entries
+                        Showing {filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} entries
+                        {search && <span style={{ color: 'var(--accent-glow)', marginLeft: '4px' }}>(filtered from {capacities.length} total)</span>}
                     </p>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         <button className="btn" disabled={page <= 1} onClick={() => setPage(p => p - 1)}
