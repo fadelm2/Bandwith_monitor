@@ -7,21 +7,34 @@ import (
 )
 
 type RouteConfig struct {
-	App           *fiber.App
-	WanController *http.WanController
+	App            *fiber.App
+	WanController  *http.WanController
+	UserController *http.UserController
+	AuthMiddleware fiber.Handler
 }
 
 func (c *RouteConfig) Setup() {
 	c.App.Get("/internal/health", c.WanController.Health)
 
+	// Protected Internal Routes (Dashboard)
+	internal := c.App.Group("/internal", c.AuthMiddleware)
+
 	// Capacity CRUD
-	c.App.Post("/internal/capacity", c.WanController.CreateCapacity)
-	c.App.Put("/internal/capacity/bulk", c.WanController.BulkUpdateCapacity)
-	c.App.Get("/internal/capacity", c.WanController.ListCapacity)
-	c.App.Get("/internal/capacity/:wanId", c.WanController.GetCapacity)
-	c.App.Put("/internal/capacity/:wanId", c.WanController.UpdateCapacity)
-	c.App.Delete("/internal/capacity/:wanId", c.WanController.DeleteCapacity)
+	internal.Post("/capacity", c.WanController.CreateCapacity)
+	internal.Put("/capacity/bulk", c.WanController.BulkUpdateCapacity)
+	internal.Get("/capacity", c.WanController.ListCapacity)
+	internal.Get("/capacity/:wanId", c.WanController.GetCapacity)
+	internal.Put("/capacity/:wanId", c.WanController.UpdateCapacity)
+	internal.Delete("/capacity/:wanId", c.WanController.DeleteCapacity)
 
 	// Traffic
-	c.App.Get("/internal/traffic", c.WanController.SearchTraffic)
+	internal.Get("/traffic", c.WanController.SearchTraffic)
+
+	// Auth — public
+	c.App.Post("/api/auth/register", c.UserController.Register)
+	c.App.Post("/api/auth/login", c.UserController.Login)
+
+	// Auth — protected (requires valid JWT)
+	c.App.Get("/api/auth/current", c.AuthMiddleware, c.UserController.Current)
+	c.App.Post("/api/auth/logout", c.AuthMiddleware, c.UserController.Logout)
 }
