@@ -20,6 +20,15 @@ func NewUserController(log *logrus.Logger, useCase *usecase.UserUseCase) *UserCo
 }
 
 // Register handles POST /api/auth/register
+// @Summary Register a new user
+// @Description Register a new user with ID, password, name, and email
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body model.RegisterUserRequest true "Registration Info"
+// @Success 201 {object} model.WebResponse[model.UserResponse]
+// @Failure 400 {object} model.WebResponse[string]
+// @Router /api/auth/register [post]
 func (c *UserController) Register(ctx *fiber.Ctx) error {
 	request := new(model.RegisterUserRequest)
 	if err := ctx.BodyParser(request); err != nil {
@@ -37,6 +46,15 @@ func (c *UserController) Register(ctx *fiber.Ctx) error {
 }
 
 // Login handles POST /api/auth/login
+// @Summary Login and get JWT
+// @Description Login with ID and password to receive a JWT token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body model.LoginUserRequest true "Login Credentials"
+// @Success 200 {object} model.WebResponse[model.UserResponse]
+// @Failure 401 {object} model.WebResponse[string]
+// @Router /api/auth/login [post]
 func (c *UserController) Login(ctx *fiber.Ctx) error {
 	request := new(model.LoginUserRequest)
 	if err := ctx.BodyParser(request); err != nil {
@@ -64,6 +82,14 @@ func (c *UserController) Login(ctx *fiber.Ctx) error {
 }
 
 // Current handles GET /api/auth/current (protected)
+// @Summary Get current user
+// @Description Get currently authenticated user information
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} model.WebResponse[model.UserResponse]
+// @Failure 401 {object} model.WebResponse[string]
+// @Security bearerAuth
+// @Router /api/auth/current [get]
 func (c *UserController) Current(ctx *fiber.Ctx) error {
 	auth := middleware.GetUser(ctx)
 
@@ -78,6 +104,13 @@ func (c *UserController) Current(ctx *fiber.Ctx) error {
 }
 
 // Logout handles POST /api/auth/logout (protected)
+// @Summary Logout user
+// @Description Logout current user and clear token cookie
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} model.WebResponse[bool]
+// @Security bearerAuth
+// @Router /api/auth/logout [post]
 func (c *UserController) Logout(ctx *fiber.Ctx) error {
 	auth := middleware.GetUser(ctx)
 

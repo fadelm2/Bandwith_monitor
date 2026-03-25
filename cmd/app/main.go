@@ -7,6 +7,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @title WAN Monitoring System API
+// @version 1.0.0
+// @description API for monitoring WAN bandwidth and managing user authentication.
+// @host localhost:9090
+// @BasePath /
+// @securityDefinitions.apikey bearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer <your_token>" to authenticate
+
 func main() {
 	log := config.NewLogger()
 	viper := config.NewViper()

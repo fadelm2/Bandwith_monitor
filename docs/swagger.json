@@ -1,0 +1,676 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for monitoring WAN bandwidth and managing user authentication.",
+        "title": "WAN Monitoring System API",
+        "contact": {},
+        "version": "1.0.0"
+    },
+    "host": "localhost:9090",
+    "basePath": "/",
+    "paths": {
+        "/api/auth/current": {
+            "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "description": "Get currently authenticated user information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get current user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_UserResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "description": "Login with ID and password to receive a JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login and get JWT",
+                "parameters": [
+                    {
+                        "description": "Login Credentials",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.LoginUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_UserResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "description": "Logout current user and clear token cookie",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-bool"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "description": "Register a new user with ID, password, name, and email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "Registration Info",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.RegisterUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_UserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/internal/capacity": {
+            "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Capacity"
+                ],
+                "summary": "List all WAN capacities",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-array_wan-system_internal_model_WanCapacityResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Capacity"
+                ],
+                "summary": "Create WAN capacity",
+                "parameters": [
+                    {
+                        "description": "Capacity Info",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WanCapacityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_WanCapacityResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/internal/capacity/bulk": {
+            "put": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Capacity"
+                ],
+                "summary": "Bulk update WAN capacities",
+                "parameters": [
+                    {
+                        "description": "List of Capacity Info",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/wan-system_internal_model.WanCapacityRequest"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-array_wan-system_internal_model_WanCapacityResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/internal/capacity/{wanId}": {
+            "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Capacity"
+                ],
+                "summary": "Get WAN capacity",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "WAN ID",
+                        "name": "wanId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_WanCapacityResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Capacity"
+                ],
+                "summary": "Update WAN capacity",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "WAN ID",
+                        "name": "wanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Capacity Info",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WanCapacityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_WanCapacityResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "Capacity"
+                ],
+                "summary": "Delete WAN capacity",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "WAN ID",
+                        "name": "wanId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-bool"
+                        }
+                    }
+                }
+            }
+        },
+        "/internal/health": {
+            "get": {
+                "description": "Check system status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/internal/traffic": {
+            "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Traffic"
+                ],
+                "summary": "Search traffic logs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "WAN ID",
+                        "name": "wan_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wan-system_internal_model.WebResponse-array_wan-system_internal_model_WanTrafficResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "wan-system_internal_model.LoginUserRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "password"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 100
+                }
+            }
+        },
+        "wan-system_internal_model.PageMetadata": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "total_item": {
+                    "type": "integer"
+                },
+                "total_page": {
+                    "type": "integer"
+                }
+            }
+        },
+        "wan-system_internal_model.RegisterUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "id",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "id": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 100
+                }
+            }
+        },
+        "wan-system_internal_model.UserResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "wan-system_internal_model.WanCapacityRequest": {
+            "type": "object",
+            "properties": {
+                "capacity_mbps": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "threshold_percent": {
+                    "type": "number"
+                },
+                "wan_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "wan-system_internal_model.WanCapacityResponse": {
+            "type": "object",
+            "properties": {
+                "capacity_mbps": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "threshold_percent": {
+                    "type": "number"
+                },
+                "wan_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "wan-system_internal_model.WanTrafficResponse": {
+            "type": "object",
+            "properties": {
+                "capacity_mbps": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "interface_name": {
+                    "type": "string"
+                },
+                "rx_mbps": {
+                    "type": "number"
+                },
+                "tx_mbps": {
+                    "type": "number"
+                },
+                "utilization_percent": {
+                    "type": "number"
+                },
+                "wan_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "wan-system_internal_model.WebResponse-array_wan-system_internal_model_WanCapacityResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/wan-system_internal_model.WanCapacityResponse"
+                    }
+                },
+                "errors": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/wan-system_internal_model.PageMetadata"
+                }
+            }
+        },
+        "wan-system_internal_model.WebResponse-array_wan-system_internal_model_WanTrafficResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/wan-system_internal_model.WanTrafficResponse"
+                    }
+                },
+                "errors": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/wan-system_internal_model.PageMetadata"
+                }
+            }
+        },
+        "wan-system_internal_model.WebResponse-bool": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "boolean"
+                },
+                "errors": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/wan-system_internal_model.PageMetadata"
+                }
+            }
+        },
+        "wan-system_internal_model.WebResponse-string": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "errors": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/wan-system_internal_model.PageMetadata"
+                }
+            }
+        },
+        "wan-system_internal_model.WebResponse-wan-system_internal_model_UserResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/wan-system_internal_model.UserResponse"
+                },
+                "errors": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/wan-system_internal_model.PageMetadata"
+                }
+            }
+        },
+        "wan-system_internal_model.WebResponse-wan-system_internal_model_WanCapacityResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/wan-system_internal_model.WanCapacityResponse"
+                },
+                "errors": {
+                    "type": "string"
+                },
+                "paging": {
+                    "$ref": "#/definitions/wan-system_internal_model.PageMetadata"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "bearerAuth": {
+            "description": "Type \"Bearer \u003cyour_token\u003e\" to authenticate",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

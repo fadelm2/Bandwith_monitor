@@ -4,6 +4,7 @@ import (
 	"wan-system/internal/delivery/http"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 )
 
 type RouteConfig struct {
@@ -14,6 +15,7 @@ type RouteConfig struct {
 }
 
 func (c *RouteConfig) Setup() {
+	c.App.Get("/swagger/*", swagger.HandlerDefault)
 	c.App.Get("/internal/health", c.WanController.Health)
 
 	// Protected Internal Routes (Dashboard)
