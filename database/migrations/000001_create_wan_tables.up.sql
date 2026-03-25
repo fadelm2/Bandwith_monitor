@@ -13,8 +13,6 @@ CREATE TABLE IF NOT EXISTS wan_traffics (
     interface_name VARCHAR(255) NOT NULL,
     rx_mbps DOUBLE NOT NULL,
     tx_mbps DOUBLE NOT NULL,
-    capacity_mbps DOUBLE NOT NULL,
-    utilization_percent DOUBLE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_wan_traffic_wan_id (wan_id),
     INDEX idx_wan_traffic_created_at (created_at)

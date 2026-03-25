@@ -19,7 +19,7 @@ var secretKey string
 
 func init() {
 	log = config.NewLogger()
-	viperConfig = config.NewViper()
+	viperConfig = config.NewTestViper()
 	db = config.NewDatabase(viperConfig, log)
 	validate = validator.New()
 	app = fiber.New()

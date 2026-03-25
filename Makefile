@@ -3,6 +3,7 @@
 MIGRATE = migrate
 MIGRATIONS_DIR = database/migrations
 DB_URL = "mysql://root:password@tcp(127.0.0.1:3306)/network?charset=utf8mb4&parseTime=True&loc=Local"
+DB_URL_TEST = "mysql://root:password@tcp(127.0.0.1:3306)/network_test?charset=utf8mb4&parseTime=True&loc=Local"
 
 ## Create new migration
 create-migration:
@@ -11,6 +12,15 @@ create-migration:
 ## Run migrations
 migrate-up:
 	$(MIGRATE) -database $(DB_URL) -path $(MIGRATIONS_DIR) up
+
+## Setup and migrate test database
+test-db:
+	go run scripts/setup_test_db.go
+	$(MIGRATE) -database $(DB_URL_TEST) -path $(MIGRATIONS_DIR) up
+
+## Run all functional tests
+test:
+	go test -v ./test/...
 
 ## Rollback 1 step
 migrate-down:
