@@ -7,7 +7,7 @@ const client = axios.create({
     },
 });
 
-// Mocking JWT handling for now
+// Attach token to requests
 client.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -15,6 +15,19 @@ client.interceptors.request.use((config) => {
     }
     return config;
 });
+
+// Handle 401 Unauthorized globally
+client.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.reload();
+        }
+        return Promise.reject(error);
+    }
+);
 
 export const api = {
     health: () => client.get('/health'),

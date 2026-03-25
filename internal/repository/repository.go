@@ -29,5 +29,5 @@ func (r *Repository[T]) CountById(db *gorm.DB, id any) (int64, error) {
 }
 
 func (r *Repository[T]) FindById(db *gorm.DB, entity *T, id any) error {
-	return db.First(entity, "wan_id = ?", id).Error
+	return db.Where("id = ?", id).Take(entity).Error
 }

@@ -27,6 +27,11 @@ func (r *WanCapacityRepository) List(db *gorm.DB) ([]entity.WanCapacity, error) 
 	return entities, nil
 }
 
+// FindById overrides the generic Repository.FindById to use wan_id as the primary key
+func (r *WanCapacityRepository) FindById(db *gorm.DB, entity *entity.WanCapacity, id any) error {
+	return db.Where("wan_id = ?", id).Take(entity).Error
+}
+
 type WanTrafficRepository struct {
 	Repository[entity.WanTraffic]
 	Log *logrus.Logger
