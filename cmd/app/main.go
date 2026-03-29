@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"wan-system/internal/config"
 
 	"github.com/go-playground/validator/v10"
@@ -10,7 +11,7 @@ import (
 // @title WAN Monitoring System API
 // @version 1.0.0
 // @description API for monitoring WAN bandwidth and managing user authentication.
-// @host localhost:9090
+// @host localhost:8082
 // @BasePath /
 // @securityDefinitions.apikey bearerAuth
 // @in header
@@ -34,7 +35,7 @@ func main() {
 		SecretKey: secretKey,
 	})
 
-	err := app.Listen(":9090")
+	err := app.Listen(fmt.Sprintf(":%d", config.AppPort(viper)))
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}

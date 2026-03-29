@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Separate auth client pointing to /api
 const authClient = axios.create({
-    baseURL: 'http://localhost:9090/api',
+    baseURL: import.meta.env.VITE_AUTH_API_URL || 'http://localhost:9090/api',
     headers: { 'Content-Type': 'application/json' },
 });
 

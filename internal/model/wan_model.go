@@ -28,6 +28,7 @@ type WanTrafficResponse struct {
 	ID                 uint      `json:"id"`
 	WanID              string    `json:"wan_id"`
 	Hostname           string    `json:"hostname"`
+	AgentHost          string    `json:"agent_host"`
 	InterfaceName      string    `json:"interface_name"`
 	RxMbps             float64   `json:"rx_mbps"`
 	TxMbps             float64   `json:"tx_mbps"`
