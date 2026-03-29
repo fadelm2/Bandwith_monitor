@@ -1,0 +1,432 @@
+basePath: /
+definitions:
+  wan-system_internal_model.LoginUserRequest:
+    properties:
+      id:
+        maxLength: 100
+        type: string
+      password:
+        maxLength: 100
+        type: string
+    required:
+    - id
+    - password
+    type: object
+  wan-system_internal_model.PageMetadata:
+    properties:
+      page:
+        type: integer
+      size:
+        type: integer
+      total_item:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  wan-system_internal_model.RegisterUserRequest:
+    properties:
+      email:
+        maxLength: 100
+        type: string
+      id:
+        maxLength: 100
+        type: string
+      name:
+        maxLength: 100
+        type: string
+      password:
+        maxLength: 100
+        type: string
+    required:
+    - email
+    - id
+    - name
+    - password
+    type: object
+  wan-system_internal_model.UserResponse:
+    properties:
+      created_at:
+        type: integer
+      email:
+        type: string
+      id:
+        type: string
+      token:
+        type: string
+      updated_at:
+        type: integer
+      username:
+        type: string
+    type: object
+  wan-system_internal_model.WanCapacityRequest:
+    properties:
+      capacity_mbps:
+        type: number
+      description:
+        type: string
+      threshold_percent:
+        type: number
+      wan_id:
+        type: string
+    type: object
+  wan-system_internal_model.WanCapacityResponse:
+    properties:
+      capacity_mbps:
+        type: number
+      created_at:
+        type: string
+      description:
+        type: string
+      threshold_percent:
+        type: number
+      wan_id:
+        type: string
+    type: object
+  wan-system_internal_model.WanTrafficResponse:
+    properties:
+      capacity_mbps:
+        type: number
+      created_at:
+        type: string
+      hostname:
+        type: string
+      id:
+        type: integer
+      interface_name:
+        type: string
+      rx_mbps:
+        type: number
+      tx_mbps:
+        type: number
+      utilization_percent:
+        type: number
+      wan_id:
+        type: string
+    type: object
+  wan-system_internal_model.WebResponse-array_wan-system_internal_model_WanCapacityResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/wan-system_internal_model.WanCapacityResponse'
+        type: array
+      errors:
+        type: string
+      paging:
+        $ref: '#/definitions/wan-system_internal_model.PageMetadata'
+    type: object
+  wan-system_internal_model.WebResponse-array_wan-system_internal_model_WanTrafficResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/wan-system_internal_model.WanTrafficResponse'
+        type: array
+      errors:
+        type: string
+      paging:
+        $ref: '#/definitions/wan-system_internal_model.PageMetadata'
+    type: object
+  wan-system_internal_model.WebResponse-bool:
+    properties:
+      data:
+        type: boolean
+      errors:
+        type: string
+      paging:
+        $ref: '#/definitions/wan-system_internal_model.PageMetadata'
+    type: object
+  wan-system_internal_model.WebResponse-string:
+    properties:
+      data:
+        type: string
+      errors:
+        type: string
+      paging:
+        $ref: '#/definitions/wan-system_internal_model.PageMetadata'
+    type: object
+  wan-system_internal_model.WebResponse-wan-system_internal_model_UserResponse:
+    properties:
+      data:
+        $ref: '#/definitions/wan-system_internal_model.UserResponse'
+      errors:
+        type: string
+      paging:
+        $ref: '#/definitions/wan-system_internal_model.PageMetadata'
+    type: object
+  wan-system_internal_model.WebResponse-wan-system_internal_model_WanCapacityResponse:
+    properties:
+      data:
+        $ref: '#/definitions/wan-system_internal_model.WanCapacityResponse'
+      errors:
+        type: string
+      paging:
+        $ref: '#/definitions/wan-system_internal_model.PageMetadata'
+    type: object
+host: localhost:9090
+info:
+  contact: {}
+  description: API for monitoring WAN bandwidth and managing user authentication.
+  title: WAN Monitoring System API
+  version: 1.0.0
+paths:
+  /api/auth/current:
+    get:
+      description: Get currently authenticated user information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-string'
+      security:
+      - bearerAuth: []
+      summary: Get current user
+      tags:
+      - Auth
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with ID and password to receive a JWT token
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/wan-system_internal_model.LoginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-string'
+      summary: Login and get JWT
+      tags:
+      - Auth
+  /api/auth/logout:
+    post:
+      description: Logout current user and clear token cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-bool'
+      security:
+      - bearerAuth: []
+      summary: Logout user
+      tags:
+      - Auth
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with ID, password, name, and email
+      parameters:
+      - description: Registration Info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/wan-system_internal_model.RegisterUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-string'
+      summary: Register a new user
+      tags:
+      - Auth
+  /internal/capacity:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-array_wan-system_internal_model_WanCapacityResponse'
+      security:
+      - bearerAuth: []
+      summary: List all WAN capacities
+      tags:
+      - Capacity
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Capacity Info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/wan-system_internal_model.WanCapacityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_WanCapacityResponse'
+      security:
+      - bearerAuth: []
+      summary: Create WAN capacity
+      tags:
+      - Capacity
+  /internal/capacity/{wanId}:
+    delete:
+      parameters:
+      - description: WAN ID
+        in: path
+        name: wanId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-bool'
+      security:
+      - bearerAuth: []
+      summary: Delete WAN capacity
+      tags:
+      - Capacity
+    get:
+      parameters:
+      - description: WAN ID
+        in: path
+        name: wanId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_WanCapacityResponse'
+      security:
+      - bearerAuth: []
+      summary: Get WAN capacity
+      tags:
+      - Capacity
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: WAN ID
+        in: path
+        name: wanId
+        required: true
+        type: string
+      - description: Capacity Info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/wan-system_internal_model.WanCapacityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-wan-system_internal_model_WanCapacityResponse'
+      security:
+      - bearerAuth: []
+      summary: Update WAN capacity
+      tags:
+      - Capacity
+  /internal/capacity/bulk:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: List of Capacity Info
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/wan-system_internal_model.WanCapacityRequest'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-array_wan-system_internal_model_WanCapacityResponse'
+      security:
+      - bearerAuth: []
+      summary: Bulk update WAN capacities
+      tags:
+      - Capacity
+  /internal/health:
+    get:
+      description: Check system status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - System
+  /internal/traffic:
+    get:
+      parameters:
+      - description: WAN ID
+        in: query
+        name: wan_id
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wan-system_internal_model.WebResponse-array_wan-system_internal_model_WanTrafficResponse'
+      security:
+      - bearerAuth: []
+      summary: Search traffic logs
+      tags:
+      - Traffic
+securityDefinitions:
+  bearerAuth:
+    description: Type "Bearer <your_token>" to authenticate
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

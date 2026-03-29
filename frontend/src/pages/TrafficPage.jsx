@@ -29,16 +29,9 @@ const TrafficPage = ({ initialFilter = '' }) => {
                     <Search size={18} color="var(--text-secondary)" />
                     <input
                         type="text"
-                        placeholder="Filter WAN ID... (e.g. 003 or wan-003)"
+                        placeholder="Filter WAN ID... (e.g. TIS FO)"
                         value={wanFilter}
-                        onChange={(e) => {
-                            let val = e.target.value.toUpperCase();
-                            // If user types only digits, auto-prefix WAN-
-                            if (/^\d+$/.test(val)) {
-                                val = 'WAN-' + val;
-                            }
-                            setWanFilter(val);
-                        }}
+                        onChange={(e) => setWanFilter(e.target.value.toUpperCase())}
                         style={{ background: 'transparent', border: 'none', color: 'white', padding: '8px', outline: 'none', width: '200px' }}
                     />
                 </div>
@@ -50,6 +43,7 @@ const TrafficPage = ({ initialFilter = '' }) => {
                         <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
                             <th style={{ padding: '16px' }}>Time</th>
                             <th style={{ padding: '16px' }}>WAN ID</th>
+                            <th style={{ padding: '16px' }}>Agent Host</th>
                             <th style={{ padding: '16px' }}>RX (Mbps)</th>
                             <th style={{ padding: '16px' }}>TX (Mbps)</th>
                             <th style={{ padding: '16px' }}>Utilization</th>
@@ -64,6 +58,7 @@ const TrafficPage = ({ initialFilter = '' }) => {
                                     title={`Filter by ${item.wan_id}`}
                                     onClick={() => setWanFilter(item.wan_id)}
                                 >{item.wan_id}</td>
+                                <td style={{ padding: '16px', color: 'var(--text-secondary)', fontSize: '0.9em' }}>{item.agent_host}</td>
                                 <td style={{ padding: '16px', color: 'var(--accent-glow)' }}>{item.rx_mbps.toFixed(2)}</td>
                                 <td style={{ padding: '16px', color: 'var(--accent-color)' }}>{item.tx_mbps.toFixed(2)}</td>
                                 <td style={{ padding: '16px' }}>

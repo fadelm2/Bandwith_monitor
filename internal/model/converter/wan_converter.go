@@ -20,6 +20,7 @@ func WanTrafficToResponse(traffic *entity.WanTraffic) *model.WanTrafficResponse 
 		ID:                 traffic.ID,
 		WanID:              traffic.WanID,
 		Hostname:           traffic.Hostname,
+		AgentHost:          traffic.AgentHost,
 		InterfaceName:      traffic.InterfaceName,
 		RxMbps:             traffic.RxMbps,
 		TxMbps:             traffic.TxMbps,

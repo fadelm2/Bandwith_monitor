@@ -12,9 +12,10 @@ import (
 
 type Payload struct {
 	Tags struct {
-		Hostname string `json:"hostname"`
-		IfName   string `json:"ifName"`
-		IfAlias  string `json:"ifAlias"`
+		Hostname  string `json:"hostname"`
+		AgentHost string `json:"agent_host"`
+		IfName    string `json:"ifName"`
+		IfAlias   string `json:"ifAlias"`
 	} `json:"tags"`
 	Fields struct {
 		RxBytes int64 `json:"rx_bytes"`
@@ -68,6 +69,7 @@ func main() {
 
 			payload := Payload{}
 			payload.Tags.Hostname = "sim-host"
+			payload.Tags.AgentHost = "127.0.0.1"
 			payload.Tags.IfName = "eth0"
 			payload.Tags.IfAlias = wanID
 			payload.Fields.RxBytes = c.rx

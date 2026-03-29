@@ -12,6 +12,24 @@ func NewViper() *viper.Viper {
 	config.SetConfigName("config")
 	config.SetConfigType("json")
 	config.AddConfigPath("./")
+	config.AddConfigPath("../")
+	config.AddConfigPath("../../")
+
+	err := config.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("Fatal error config file: %w \n", err))
+	}
+
+	return config
+}
+
+func NewTestViper() *viper.Viper {
+	config := viper.New()
+	config.SetConfigName("config_test")
+	config.SetConfigType("json")
+	config.AddConfigPath("./")
+	config.AddConfigPath("../")
+	config.AddConfigPath("../../")
 
 	err := config.ReadInConfig()
 	if err != nil {

@@ -1,0 +1,326 @@
+openapi: 3.0.3
+info:
+  title: WAN Monitoring System API
+  description: API for monitoring WAN bandwidth, managing capacities, and user authentication.
+  version: 1.0.0
+servers:
+  - url: http://localhost:9090
+    description: Local development server
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWebResponse'
+        '400':
+          description: Invalid request
+        '409':
+          description: User already exists
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login and get JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginUserRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWebResponse'
+        '401':
+          description: Unauthorized
+  /api/auth/current:
+    get:
+      tags:
+        - Auth
+      summary: Get current authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWebResponse'
+        '401':
+          description: Unauthorized
+  /api/auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Logout and clear session
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: boolean
+  /internal/health:
+    get:
+      tags:
+        - System
+      summary: Health check
+      responses:
+        '200':
+          description: System is healthy
+  /internal/capacity:
+    get:
+      tags:
+        - Capacity
+      summary: List all WAN capacities
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WanCapacityListResponse'
+    post:
+      tags:
+        - Capacity
+      summary: Create new WAN capacity
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WanCapacityRequest'
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WanCapacityWebResponse'
+  /internal/capacity/bulk:
+    put:
+      tags:
+        - Capacity
+      summary: Bulk update WAN capacities
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/WanCapacityRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WanCapacityListResponse'
+  /internal/capacity/{wanId}:
+    get:
+      tags:
+        - Capacity
+      summary: Get WAN capacity by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WanCapacityWebResponse'
+    put:
+      tags:
+        - Capacity
+      summary: Update WAN capacity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wanId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WanCapacityRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WanCapacityWebResponse'
+    delete:
+      tags:
+        - Capacity
+      summary: Delete WAN capacity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /internal/traffic:
+    get:
+      tags:
+        - Traffic
+      summary: Search WAN traffic logs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: wan_id
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: since_minutes
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WanTrafficPageResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RegisterUserRequest:
+      type: object
+      required: [id, password, name, email]
+      properties:
+        id: { type: string, maxLength: 100 }
+        password: { type: string, maxLength: 100 }
+        name: { type: string, maxLength: 100 }
+        email: { type: string, maxLength: 100 }
+    LoginUserRequest:
+      type: object
+      required: [id, password]
+      properties:
+        id: { type: string }
+        password: { type: string }
+    UserResponse:
+      type: object
+      properties:
+        id: { type: string }
+        username: { type: string }
+        email: { type: string }
+        token: { type: string }
+        created_at: { type: integer, format: int64 }
+        updated_at: { type: integer, format: int64 }
+    UserWebResponse:
+      type: object
+      properties:
+        data: { $ref: '#/components/schemas/UserResponse' }
+    WanCapacityRequest:
+      type: object
+      properties:
+        wan_id: { type: string }
+        capacity_mbps: { type: number }
+        threshold_percent: { type: number }
+        description: { type: string }
+    WanCapacityResponse:
+      type: object
+      properties:
+        wan_id: { type: string }
+        capacity_mbps: { type: number }
+        threshold_percent: { type: number }
+        description: { type: string }
+        created_at: { type: string, format: date-time }
+    WanCapacityWebResponse:
+      type: object
+      properties:
+        data: { $ref: '#/components/schemas/WanCapacityResponse' }
+    WanCapacityListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/WanCapacityResponse' }
+    WanTrafficResponse:
+      type: object
+      properties:
+        id: { type: integer }
+        wan_id: { type: string }
+        hostname: { type: string }
+        interface_name: { type: string }
+        rx_mbps: { type: number }
+        tx_mbps: { type: number }
+        capacity_mbps: { type: number }
+        utilization_percent: { type: number }
+        created_at: { type: string, format: date-time }
+    WanTrafficPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/WanTrafficResponse' }
+        paging:
+          $ref: '#/components/schemas/PageMetadata'
+    PageMetadata:
+      type: object
+      properties:
+        page: { type: integer }
+        size: { type: integer }
+        total_item: { type: integer, format: int64 }
+        total_page: { type: integer, format: int64 }

@@ -1,0 +1,13 @@
+{
+    "database": {
+        "username": "root",
+        "password": "password",
+        "host": "127.0.0.1",
+        "port": 3306,
+        "name": "network_test"
+    },
+    "nats": {
+        "url": "nats://127.0.0.1:4222"
+    },
+    "secretkey": "wan-secret-key-test-only"
+}
