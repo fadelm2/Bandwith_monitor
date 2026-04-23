@@ -198,3 +198,16 @@ func (c *WanUseCase) SearchTraffic(ctx context.Context, request *model.SearchTra
 
 	return responses, total, nil
 }
+
+func (c *WanUseCase) GetAlerts(ctx context.Context) ([]model.WanAlertResponse, error) {
+	tx := c.DB.WithContext(ctx).Begin()
+	defer tx.Rollback()
+
+	alerts, err := c.WanTrafficRepository.GetHighUtilizationAlerts(tx)
+	if err != nil {
+		c.Log.Warnf("Failed to get alerts: %v", err)
+		return nil, err
+	}
+
+	return alerts, nil
+}

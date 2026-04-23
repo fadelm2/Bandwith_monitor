@@ -36,3 +36,13 @@ type WanTrafficResponse struct {
 	UtilizationPercent float64   `json:"utilization_percent"`
 	CreatedAt          time.Time `json:"created_at"`
 }
+
+type WanAlertResponse struct {
+	WanID            string  `json:"wan_id"`
+	Description      string  `json:"description"`
+	AvgRxMbps        float64 `json:"avg_rx_mbps"`
+	AvgTxMbps        float64 `json:"avg_tx_mbps"`
+	CurrentCapacity  float64 `json:"current_capacity"`
+	CurrentThreshold float64 `json:"current_threshold"`
+	AvgUtilization   float64 `json:"avg_utilization"`
+}
