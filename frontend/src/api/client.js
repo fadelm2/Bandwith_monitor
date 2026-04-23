@@ -42,6 +42,7 @@ export const api = {
 
     // Traffic
     searchTraffic: (params) => client.get('/traffic', { params }),
+    listAlerts: () => client.get('/alerts'),
 };
 
 export default client;

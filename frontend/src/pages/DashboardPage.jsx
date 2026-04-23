@@ -8,6 +8,7 @@ const DashboardPage = ({ onAlertClick }) => {
     const [stats, setStats] = useState({ rx: 0, tx: 0 });
     const [alerts, setAlerts] = useState([]);
     const [descMap, setDescMap] = useState({}); // wan_id -> description
+    const [selectedWan, setSelectedWan] = useState(''); // filter for chart
 
     // Fetch capacity descriptions once
     useEffect(() => {
@@ -21,7 +22,12 @@ const DashboardPage = ({ onAlertClick }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await api.searchTraffic({ page: 1, size: 100, since_minutes: 5 });
+                const res = await api.searchTraffic({
+                    page: 1,
+                    size: 20,
+                    wan_id: selectedWan, // Filter if selected
+                    since_minutes: 5
+                });
                 const data = res.data.data || [];
 
                 // Chart: last 20, reversed oldest→newest
@@ -37,18 +43,9 @@ const DashboardPage = ({ onAlertClick }) => {
                     setStats({ rx: data[0].rx_mbps, tx: data[0].tx_mbps });
                 }
 
-                // Alerts: Get latest per WAN, check if > threshold (80%)
-                const latestPerWan = {};
-                data.forEach(item => {
-                    if (!latestPerWan[item.wan_id]) {
-                        latestPerWan[item.wan_id] = item;
-                    }
-                });
-                const highUtil = Object.values(latestPerWan)
-                    .filter(item => item.utilization_percent > 80)
-                    .sort((a, b) => b.utilization_percent - a.utilization_percent)
-                    .slice(0, 10); // Top 10 most critical
-                setAlerts(highUtil);
+                // High Utilization Alerts: Fetch from the new aggregated endpoint
+                const alertRes = await api.listAlerts();
+                setAlerts(alertRes.data.data || []);
             } catch (err) {
                 console.error("Failed to fetch traffic", err);
             }
@@ -57,7 +54,7 @@ const DashboardPage = ({ onAlertClick }) => {
         fetchData();
         const interval = setInterval(fetchData, 5000);
         return () => clearInterval(interval);
-    }, []);
+    }, [selectedWan]); // Re-fetch when filter changes
 
     return (
         <div>
@@ -149,13 +146,13 @@ const DashboardPage = ({ onAlertClick }) => {
                                     <td style={{ padding: '12px 16px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <div style={{ width: '80px', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
-                                                <div style={{ width: `${Math.min(item.utilization_percent, 100)}%`, height: '100%', background: 'var(--danger)' }}></div>
+                                                <div style={{ width: `${Math.min(item.avg_utilization, 100)}%`, height: '100%', background: 'var(--danger)' }}></div>
                                             </div>
-                                            <span style={{ color: 'var(--danger)', fontWeight: 'bold' }}>{item.utilization_percent.toFixed(1)}%</span>
+                                            <span style={{ color: 'var(--danger)', fontWeight: 'bold' }}>{(item.avg_utilization || 0).toFixed(1)}%</span>
                                         </div>
                                     </td>
-                                    <td style={{ padding: '12px 16px', color: 'var(--accent-glow)' }}>{item.rx_mbps.toFixed(2)}</td>
-                                    <td style={{ padding: '12px 16px', color: 'var(--accent-color)' }}>{item.tx_mbps.toFixed(2)}</td>
+                                    <td style={{ padding: '12px 16px', color: 'var(--accent-glow)' }}>{(item.avg_rx_mbps || 0).toFixed(2)}</td>
+                                    <td style={{ padding: '12px 16px', color: 'var(--accent-color)' }}>{(item.avg_tx_mbps || 0).toFixed(2)}</td>
                                     <td style={{ padding: '12px 16px', color: 'var(--text-secondary)' }}>
                                         <ChevronRight size={18} />
                                     </td>
@@ -167,7 +164,30 @@ const DashboardPage = ({ onAlertClick }) => {
             )}
 
             <div className="glass-card" style={{ height: '400px' }}>
-                <h3 style={{ marginBottom: '24px' }}>Real-time Traffic History</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                    <h3 style={{ margin: 0 }}>{selectedWan ? `Traffic History: ${selectedWan}` : 'Global Traffic Feed'}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Filter Site:</span>
+                        <select
+                            value={selectedWan}
+                            onChange={(e) => setSelectedWan(e.target.value)}
+                            style={{
+                                background: 'var(--bg-secondary)',
+                                color: 'white',
+                                border: '1px solid var(--border)',
+                                borderRadius: '6px',
+                                padding: '4px 8px',
+                                fontSize: '0.85rem',
+                                outline: 'none'
+                            }}
+                        >
+                            <option value="">All Sites</option>
+                            {Object.keys(descMap).sort().map(id => (
+                                <option key={id} value={id}>{id} {descMap[id] ? `- ${descMap[id]}` : ''}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
                 <ResponsiveContainer width="100%" height="80%">
                     <AreaChart data={trafficData}>
                         <defs>

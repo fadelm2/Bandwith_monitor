@@ -190,3 +190,19 @@ func (c *WanController) SearchTraffic(ctx *fiber.Ctx) error {
 		Paging: paging,
 	})
 }
+
+// GetAlerts
+// @Summary Get high utilization alerts (aggregated)
+// @Tags Traffic
+// @Produce json
+// @Success 200 {object} model.WebResponse[[]model.WanAlertResponse]
+// @Security bearerAuth
+// @Router /internal/alerts [get]
+func (c *WanController) GetAlerts(ctx *fiber.Ctx) error {
+	responses, err := c.UseCase.GetAlerts(ctx.UserContext())
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(model.WebResponse[[]model.WanAlertResponse]{Data: responses})
+}
