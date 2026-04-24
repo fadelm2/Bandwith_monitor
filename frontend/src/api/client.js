@@ -43,6 +43,11 @@ export const api = {
     // Traffic
     searchTraffic: (params) => client.get('/traffic', { params }),
     listAlerts: () => client.get('/alerts'),
+
+    // Telegraf
+    listTelegrafAgents: () => client.get('/telegraf/agents'),
+    createTelegrafAgent: (data) => client.post('/telegraf/agents', data),
+    getTelegrafConfig: () => client.get('/telegraf/config'),
 };
 
 export default client;

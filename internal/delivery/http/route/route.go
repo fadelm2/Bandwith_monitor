@@ -9,9 +9,10 @@ import (
 
 type RouteConfig struct {
 	App            *fiber.App
-	WanController  *http.WanController
-	UserController *http.UserController
-	AuthMiddleware fiber.Handler
+	WanController      *http.WanController
+	UserController     *http.UserController
+	TelegrafController *http.TelegrafController
+	AuthMiddleware     fiber.Handler
 }
 
 func (c *RouteConfig) Setup() {
@@ -32,6 +33,11 @@ func (c *RouteConfig) Setup() {
 	// Traffic
 	internal.Get("/traffic", c.WanController.SearchTraffic)
 	internal.Get("/alerts", c.WanController.GetAlerts)
+
+	// Telegraf Settings
+	internal.Get("/telegraf/agents", c.TelegrafController.ListAgents)
+	internal.Post("/telegraf/agents", c.TelegrafController.CreateAgent)
+	internal.Get("/telegraf/config", c.TelegrafController.GenerateConfig)
 
 	// Auth — public
 	c.App.Post("/api/auth/register", c.UserController.Register)

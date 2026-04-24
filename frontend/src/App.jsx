@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DashboardPage from './pages/DashboardPage';
 import WanCapacityPage from './pages/WanCapacityPage';
 import TrafficPage from './pages/TrafficPage';
+import TelegrafPage from './pages/TelegrafPage';
 import LoginPage from './pages/LoginPage';
 import { Layout } from './components/Layout';
 import { authApi } from './api/auth';
@@ -52,6 +53,8 @@ function App() {
         return <TrafficPage initialFilter={trafficFilter} />;
       case 'capacity':
         return <WanCapacityPage />;
+      case 'telegraf':
+        return <TelegrafPage />;
       default:
         return <DashboardPage onAlertClick={navigateToTraffic} />;
     }
