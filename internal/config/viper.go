@@ -17,10 +17,8 @@ func NewViper() *viper.Viper {
 
 	err := config.ReadInConfig()
 	if err != nil {
-		fmt.Printf("Warning: No config file found, using defaults and environment variables: %v\n", err)
+		panic(fmt.Errorf("Fatal error config file: %w \n", err))
 	}
-
-	config.AutomaticEnv()
 
 	return config
 }
@@ -35,10 +33,8 @@ func NewTestViper() *viper.Viper {
 
 	err := config.ReadInConfig()
 	if err != nil {
-		fmt.Printf("Warning: No test config file found, using defaults and environment variables: %v\n", err)
+		panic(fmt.Errorf("Fatal error config file: %w \n", err))
 	}
-
-	config.AutomaticEnv()
 
 	return config
 }

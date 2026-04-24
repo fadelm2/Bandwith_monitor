@@ -31,6 +31,7 @@ func (c *RouteConfig) Setup() {
 
 	// Traffic
 	internal.Get("/traffic", c.WanController.SearchTraffic)
+	internal.Get("/alerts", c.WanController.GetAlerts)
 
 	// Auth — public
 	c.App.Post("/api/auth/register", c.UserController.Register)
