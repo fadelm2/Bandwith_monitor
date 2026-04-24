@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"wan-system/internal/entity"
+	"wan-system/internal/model"
 	"wan-system/internal/repository"
 
 	"github.com/sirupsen/logrus"
@@ -27,7 +28,7 @@ func NewTelegrafUseCase(db *gorm.DB, logger *logrus.Logger, repo *repository.Tel
 
 // GenerateSnmpConfig generates the [[inputs.snmp]] block for Telegraf
 func (c *TelegrafUseCase) GenerateSnmpConfig(ctx context.Context) (string, error) {
-	agents, err := c.TelegrafRepository.ListActive(c.DB)
+	agents, err := c.TelegrafRepository.List(c.DB)
 	if err != nil {
 		return "", err
 	}
