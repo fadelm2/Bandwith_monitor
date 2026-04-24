@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, X, Settings, RefreshCw, FileCode } from 'lucide-react';
-import client from '../api/client';
+import { api } from '../api/client';
 
 const TelegrafPage = () => {
     const [agents, setAgents] = useState([]);
@@ -13,8 +13,8 @@ const TelegrafPage = () => {
         setLoading(true);
         try {
             const [agentsRes, configRes] = await Promise.all([
-                client.listTelegrafAgents(),
-                client.getTelegrafConfig()
+                api.listTelegrafAgents(),
+                api.getTelegrafConfig()
             ]);
             setAgents(agentsRes.data.data || []);
             setConfigPreview(configRes.data.data || '');
@@ -30,7 +30,7 @@ const TelegrafPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await client.createTelegrafAgent(formData);
+            await api.createTelegrafAgent(formData);
             setShowModal(false);
             setFormData({ ip_address: '', port: 161, protocol: 'udp', description: '' });
             fetchData();
