@@ -1,0 +1,22 @@
+# Go related
+vendor/
+*.exe
+*.test
+bin/
+
+# Frontend related
+frontend/node_modules/
+frontend/dist/
+
+# IDE related
+.idea/
+.vscode/
+
+# Other
+.git/
+.gitignore
+*.md
+Makefile
+docker-compose.yml
+Dockerfile
+.dockerignore
