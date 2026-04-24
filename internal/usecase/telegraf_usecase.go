@@ -28,35 +28,106 @@ func NewTelegrafUseCase(db *gorm.DB, logger *logrus.Logger, repo *repository.Tel
 	}
 }
 
-// GenerateSnmpConfig generates the [[inputs.snmp]] block for Telegraf
+// GenerateSnmpConfig generates the full telegraf.conf content based on user template
 func (c *TelegrafUseCase) GenerateSnmpConfig(ctx context.Context) (string, error) {
 	agents, err := c.TelegrafRepository.List(c.DB)
 	if err != nil {
 		return "", err
 	}
 
-	var sb strings.Builder
-	sb.WriteString("########################################\n")
-	sb.WriteString("# INPUT SNMP (AUTOMATICALLY GENERATED)\n")
-	sb.WriteString("########################################\n")
-	sb.WriteString("[[inputs.snmp]]\n")
-	sb.WriteString("  agents = [\n")
-
-	for i, agent := range agents {
-		comma := ","
-		if i == len(agents)-1 {
-			comma = ""
-		}
-		sb.WriteString(fmt.Sprintf("    \"%s://%s:%d\"%s\n", agent.Protocol, agent.IPAddress, agent.Port, comma))
+	var ipList []string
+	for _, agent := range agents {
+		ipList = append(ipList, fmt.Sprintf("    \"%s://%s:%d\"", agent.Protocol, agent.IPAddress, agent.Port))
 	}
+	agentsString := strings.Join(ipList, ",\n")
 
-	sb.WriteString("  ]\n")
-	
-	// Add other standard SNMP settings here if needed
-	sb.WriteString("  version = 2\n")
-	sb.WriteString("  community = \"public\"\n")
+	// Full template from user
+	template := `########################################
+# AGENT
+########################################
+[agent]
+  interval = "5s"
+  round_interval = true
+  flush_interval = "5s"
 
-	return sb.String(), nil
+########################################
+# INPUT SNMP (SEMUA DISERAGAMKAN)
+########################################
+[[inputs.snmp]]
+  agents = [
+%s
+  ]
+  community = "greenet-snmp"
+  name_override = "network.wan"
+  agent_host_tag = "source"
+
+  [[inputs.snmp.field]]
+    name = "hostname"
+    oid = "SNMPv2-MIB::sysName.0"
+    is_tag = true
+
+  [[inputs.snmp.table]]
+    name = "interface"
+    inherit_tags = ["hostname"]
+
+    [[inputs.snmp.table.field]]
+      name = "ifName"
+      oid = "IF-MIB::ifDescr"
+      is_tag = true
+
+    [[inputs.snmp.table.field]]
+      name = "ifAlias"
+      oid = "IF-MIB::ifAlias"
+      is_tag = true
+
+    [[inputs.snmp.table.field]]
+      name = "rx_bytes"
+      oid = "IF-MIB::ifHCInOctets"
+
+    [[inputs.snmp.table.field]]
+      name = "tx_bytes"
+      oid = "IF-MIB::ifHCOutOctets"
+
+########################################
+# FILTER WAN ONLY
+########################################
+[[processors.starlark]]
+  source = '''
+def apply(metric):
+    alias = metric.tags.get("ifAlias", "")
+    if "WAN" not in alias:
+        return None
+    return metric
+'''
+
+########################################
+# CLEAN DATA
+########################################
+[[processors.strings]]
+  [[processors.strings.replace]]
+    tag = "ifAlias"
+    old = "==="
+    new = ""
+
+########################################
+# OUTPUT NATS (JSON ONLY)
+########################################
+[[outputs.nats]]
+  servers = ["nats://172.16.23.70:4222"]
+  subject = "network.wan"
+  data_format = "json"
+  taginclude = ["ifAlias", "ifName", "hostname", "source"]
+
+########################################
+# OUTPUT INFLUXDB
+########################################
+[[outputs.influxdb_v2]]
+  urls = ["http://127.0.0.1:8086"]
+  token = "supersecrettoken" 
+  organization = "greenet"
+  bucket = "network"
+`
+	return fmt.Sprintf(template, agentsString), nil
 }
 
 func (c *TelegrafUseCase) CreateAgent(ctx context.Context, req *model.TelegrafAgentRequest) (*model.TelegrafAgentResponse, error) {
