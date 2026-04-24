@@ -48,6 +48,7 @@ export const api = {
     listTelegrafAgents: () => client.get('/telegraf/agents'),
     createTelegrafAgent: (data) => client.post('/telegraf/agents', data),
     getTelegrafConfig: () => client.get('/telegraf/config'),
+    importTelegrafAgents: () => client.post('/telegraf/import'),
 };
 
 export default client;

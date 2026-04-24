@@ -38,6 +38,7 @@ func (c *RouteConfig) Setup() {
 	internal.Get("/telegraf/agents", c.TelegrafController.ListAgents)
 	internal.Post("/telegraf/agents", c.TelegrafController.CreateAgent)
 	internal.Get("/telegraf/config", c.TelegrafController.GenerateConfig)
+	internal.Post("/telegraf/import", c.TelegrafController.ImportAgents)
 
 	// Auth — public
 	c.App.Post("/api/auth/register", c.UserController.Register)

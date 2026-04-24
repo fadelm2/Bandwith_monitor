@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Save, X, Settings, RefreshCw, FileCode } from 'lucide-react';
+import { Plus, Trash2, Save, X, Settings, RefreshCw, FileCode, ArrowRightLeft } from 'lucide-react';
 import { api } from '../api/client';
 
 const TelegrafPage = () => {
@@ -39,6 +39,20 @@ const TelegrafPage = () => {
         }
     };
 
+    const handleImport = async () => {
+        if (!window.confirm("Import agents from /etc/telegraf/telegraf.conf? Duplicate IPs will be skipped.")) return;
+        setLoading(true);
+        try {
+            const res = await api.importTelegrafAgents();
+            alert(`Import successful! Added ${res.data.data} new agents.`);
+            fetchData();
+        } catch (err) {
+            alert("Failed to import agents from file. Check permissions.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
@@ -46,6 +60,9 @@ const TelegrafPage = () => {
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button className="btn" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }} onClick={fetchData}>
                         <RefreshCw size={20} className={loading ? 'animate-spin' : ''} /> Refresh
+                    </button>
+                    <button className="btn" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-glow)', border: '1px solid var(--border)' }} onClick={handleImport}>
+                        <ArrowRightLeft size={20} /> Sync from File
                     </button>
                     <button className="btn btn-primary" onClick={() => setShowModal(true)}>
                         <Plus size={20} /> Add SNMP Agent

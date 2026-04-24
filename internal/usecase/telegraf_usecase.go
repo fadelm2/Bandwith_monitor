@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"wan-system/internal/entity"
 	"wan-system/internal/model"
@@ -227,4 +228,53 @@ func (c *TelegrafUseCase) SyncConfigToFile(ctx context.Context) error {
 
 	c.Log.Info("Telegraf service reloaded successfully")
 	return nil
+}
+
+func (c *TelegrafUseCase) ImportConfigFromFile(ctx context.Context) (int, error) {
+	configPath := "/etc/telegraf/telegraf.conf"
+	if os.PathSeparator == '\\' {
+		configPath = "telegraf_test.conf"
+	}
+
+	content, err := os.ReadFile(configPath)
+	if err != nil {
+		return 0, err
+	}
+
+	// Regex to match "udp://103.140.78.210:161" or similar
+	re := regexp.MustCompile(`"(udp|tcp)://([\d\.]+):(\d+)"`)
+	matches := re.FindAllStringSubmatch(string(content), -1)
+
+	importedCount := 0
+	for _, match := range matches {
+		protocol := match[1]
+		ip := match[2]
+		port := 161
+		fmt.Sscanf(match[3], "%d", &port)
+
+		// Check if already exists in DB
+		existing, _ := c.TelegrafRepository.List(c.DB)
+		isDuplicate := false
+		for _, e := range existing {
+			if e.IPAddress == ip && e.Port == port && e.Protocol == protocol {
+				isDuplicate = true
+				break
+			}
+		}
+
+		if !isDuplicate {
+			agent := &entity.TelegrafAgent{
+				IPAddress:   ip,
+				Port:        port,
+				Protocol:    protocol,
+				Description: "Imported from file",
+				IsActive:    true,
+			}
+			if err := c.TelegrafRepository.Create(c.DB, agent); err == nil {
+				importedCount++
+			}
+		}
+	}
+
+	return importedCount, nil
 }

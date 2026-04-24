@@ -52,3 +52,13 @@ func (c *TelegrafController) GenerateConfig(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(model.WebResponse[string]{Data: config})
 }
+
+func (c *TelegrafController) ImportAgents(ctx *fiber.Ctx) error {
+	count, err := c.TelegrafUseCase.ImportConfigFromFile(ctx.UserContext())
+	if err != nil {
+		c.Log.Warnf("Failed to import agents from file: %v", err)
+		return err
+	}
+
+	return ctx.JSON(model.WebResponse[int]{Data: count})
+}
