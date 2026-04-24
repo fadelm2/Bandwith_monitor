@@ -169,7 +169,22 @@ func (c *WanUseCase) ProcessTraffic(ctx context.Context, traffic *entity.WanTraf
 	if err == nil {
 		traffic.CapacityMbps = cap.CapacityMbps
 		if cap.CapacityMbps > 0 {
+			// Filter out unrealistic fluctuations (spikes) 
+			// Example: 600 Mbps capacity but getting 14,000 Mbps (~23x)
+			// We'll use a threshold of 15x capacity as a "glitch" limit
+			if traffic.RxMbps > cap.CapacityMbps*15 || traffic.TxMbps > cap.CapacityMbps*15 {
+				c.Log.Warnf("Discarding abnormal traffic spike for %s: RX=%.2f, TX=%.2f (Capacity: %.2f)", 
+					traffic.WanID, traffic.RxMbps, traffic.TxMbps, cap.CapacityMbps)
+				return nil // Skip recording this point
+			}
 			traffic.UtilizationPercent = (traffic.RxMbps / cap.CapacityMbps) * 100
+		} else {
+			// Global hard limit if capacity is not set (e.g., 100 Gbps)
+			if traffic.RxMbps > 100000 || traffic.TxMbps > 100000 {
+				c.Log.Warnf("Discarding extreme traffic spike (no capacity set) for %s: RX=%.2f, TX=%.2f", 
+					traffic.WanID, traffic.RxMbps, traffic.TxMbps)
+				return nil
+			}
 		}
 	}
 
