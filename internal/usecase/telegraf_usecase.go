@@ -3,6 +3,8 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/exec"
 	"strings"
 	"wan-system/internal/entity"
 	"wan-system/internal/model"
@@ -77,6 +79,14 @@ func (c *TelegrafUseCase) CreateAgent(ctx context.Context, req *model.TelegrafAg
 		return nil, err
 	}
 
+	// Wait, we should sync to file automatically
+	go func() {
+		err := c.SyncConfigToFile(context.Background())
+		if err != nil {
+			c.Log.Errorf("Failed to automatically sync Telegraf config: %v", err)
+		}
+	}()
+
 	return &model.TelegrafAgentResponse{
 		ID:          agent.ID,
 		IPAddress:   agent.IPAddress,
@@ -106,4 +116,44 @@ func (c *TelegrafUseCase) ListAgents(ctx context.Context) ([]model.TelegrafAgent
 	}
 
 	return responses, nil
+}
+
+func (c *TelegrafUseCase) SyncConfigToFile(ctx context.Context) error {
+	config, err := c.GenerateSnmpConfig(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Path to telegraf.conf - typically /etc/telegraf/telegraf.conf
+	// FOR SAFETY: You might want to use a specific include directory like /etc/telegraf/telegraf.d/snmp.conf
+	configPath := "/etc/telegraf/telegraf.conf"
+
+	// If running on Windows (Local Development), write to a local temp file instead
+	if os.PathSeparator == '\\' {
+		configPath = "telegraf_test.conf"
+	}
+
+	err = os.WriteFile(configPath, []byte(config), 0644)
+	if err != nil {
+		c.Log.Errorf("Failed to write telegraf config: %v", err)
+		return err
+	}
+
+	c.Log.Infof("Telegraf config updated successfully at %s", configPath)
+
+	// Reload Telegraf
+	// Note: Application needs sudo permissions without password for this to work
+	cmd := exec.Command("sudo", "systemctl", "reload", "telegraf")
+	if os.PathSeparator == '\\' {
+		return nil // Skip reload on windows
+	}
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		c.Log.Errorf("Failed to reload telegraf: %v, output: %s", err, string(output))
+		return err
+	}
+
+	c.Log.Info("Telegraf service reloaded successfully")
+	return nil
 }
