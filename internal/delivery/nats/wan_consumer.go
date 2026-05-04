@@ -29,7 +29,7 @@ type WanConsumer struct {
 type WanPayload struct {
 	Tags struct {
 		Hostname  string `json:"hostname"`
-		AgentHost string `json:"agent_host"`
+		AgentHost string `json:"source"`
 		IfName    string `json:"ifName"`
 		IfAlias   string `json:"ifAlias"`
 	} `json:"tags"`
@@ -91,11 +91,14 @@ func (c *WanConsumer) Start() {
 			return
 		}
 
+		// Use a combined key of wanID and AgentHost to prevent baseline resets if multiple routers share the same alias
+		baselineKey := wanID + "_" + payload.Tags.AgentHost
+		
 		now := time.Now()
-		last, ok := c.LastData[wanID]
+		last, ok := c.LastData[baselineKey]
 		if !ok {
-			// First data point for this WAN ID
-			c.LastData[wanID] = struct {
+			// First data point for this WAN ID and Source
+			c.LastData[baselineKey] = struct {
 				Rx   int64
 				Tx   int64
 				Time time.Time
@@ -115,8 +118,8 @@ func (c *WanConsumer) Start() {
 
 		// Basic sanity check to handle counter resets
 		if rxDelta < 0 || txDelta < 0 {
-			c.Log.Infof("Counter reset detected for %s. Resetting baseline.", wanID)
-			c.LastData[wanID] = struct {
+			c.Log.Infof("Counter reset detected for %s. Resetting baseline.", baselineKey)
+			c.LastData[baselineKey] = struct {
 				Rx   int64
 				Tx   int64
 				Time time.Time
@@ -142,7 +145,7 @@ func (c *WanConsumer) Start() {
 			c.Log.Warnf("Failed to process traffic for %s: %v", wanID, err)
 		}
 
-		c.LastData[wanID] = struct {
+		c.LastData[baselineKey] = struct {
 			Rx   int64
 			Tx   int64
 			Time time.Time
@@ -174,7 +177,7 @@ func parseLineProtocol(line string) (WanPayload, error) {
 			switch k {
 			case "hostname":
 				p.Tags.Hostname = v
-			case "agent_host":
+			case "agent_host", "source":
 				p.Tags.AgentHost = v
 			case "ifName":
 				p.Tags.IfName = v
