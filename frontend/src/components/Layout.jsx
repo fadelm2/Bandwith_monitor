@@ -34,6 +34,13 @@ export const Layout = ({ children, current, setPage, user, onLogout }) => {
                         >
                             <Settings size={20} /> Capacity MGMT
                         </button>
+                        <button
+                            className={`btn ${current === 'telegraf' ? 'btn-primary' : ''}`}
+                            style={{ width: '100%', background: current === 'telegraf' ? '' : 'transparent' }}
+                            onClick={() => setPage('telegraf')}
+                        >
+                            <Settings size={20} /> Telegraf Settings
+                        </button>
                     </nav>
                 </div>
 

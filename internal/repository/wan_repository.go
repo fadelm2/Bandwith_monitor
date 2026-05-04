@@ -55,7 +55,7 @@ func (r *WanTrafficRepository) Search(db *gorm.DB, request *model.SearchTrafficR
 
 	query := db.Model(&entity.WanTraffic{})
 	if request.WanID != "" {
-		query = query.Where("wan_id LIKE ?", "%"+request.WanID+"%")
+		query = query.Where("wan_id = ?", request.WanID)
 	}
 	if request.SinceMinutes > 0 {
 		query = query.Where("created_at > NOW() - INTERVAL ? MINUTE", request.SinceMinutes)

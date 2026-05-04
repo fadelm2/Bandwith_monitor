@@ -38,6 +38,7 @@ func Bootstrap(config *BootstrapConfig) {
 	wanCapacityRepository := repository.NewWanCapacityRepository(config.Log)
 	wanTrafficRepository := repository.NewWanTrafficRepository(config.Log)
 	userRepository := repository.NewUserRepository(config.Log)
+	telegrafRepository := repository.NewTelegrafRepository()
 
 	// Token util
 	tokenUtil := util.NewTokenUtil(config.SecretKey)
@@ -45,10 +46,12 @@ func Bootstrap(config *BootstrapConfig) {
 	// Use cases
 	wanUseCase := usecase.NewWanUseCase(config.DB, config.Log, wanCapacityRepository, wanTrafficRepository)
 	userUseCase := usecase.NewUserUseCase(config.DB, config.Log, config.Validate, userRepository, tokenUtil)
+	telegrafUseCase := usecase.NewTelegrafUseCase(config.DB, config.Log, telegrafRepository)
 
 	// Controllers
 	wanController := http.NewWanController(config.Log, wanUseCase)
 	userController := http.NewUserController(config.Log, userUseCase)
+	telegrafController := http.NewTelegrafController(config.Log, telegrafUseCase)
 
 	// Middleware
 	authMiddleware := middleware.NewAuth(tokenUtil, config.Log)
@@ -59,9 +62,10 @@ func Bootstrap(config *BootstrapConfig) {
 
 	routeConfig := route.RouteConfig{
 		App:            config.App,
-		WanController:  wanController,
-		UserController: userController,
-		AuthMiddleware: authMiddleware,
+		WanController:      wanController,
+		UserController:     userController,
+		TelegrafController: telegrafController,
+		AuthMiddleware:     authMiddleware,
 	}
 	routeConfig.Setup()
 }
