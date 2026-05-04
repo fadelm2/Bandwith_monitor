@@ -85,6 +85,8 @@ func (c *WanConsumer) Start() {
 
 		// Use ifAlias as WanID. If empty, skip.
 		wanID := payload.Tags.IfAlias
+		wanID = strings.TrimSpace(strings.ReplaceAll(wanID, "---", ""))
+		wanID = strings.TrimSpace(strings.ReplaceAll(wanID, "===", ""))
 		if wanID == "" {
 			return
 		}

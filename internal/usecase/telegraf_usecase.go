@@ -109,6 +109,10 @@ def apply(metric):
     tag = "ifAlias"
     old = "==="
     new = ""
+  [[processors.strings.replace]]
+    tag = "ifAlias"
+    old = "---"
+    new = ""
 
 ########################################
 # OUTPUT NATS (JSON ONLY)
