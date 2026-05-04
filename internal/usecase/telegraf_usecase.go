@@ -88,7 +88,7 @@ func (c *TelegrafUseCase) GenerateSnmpConfig(ctx context.Context) (string, error
 ########################################
 # INPUT SNMP (PER IP ADDRESS)
 ########################################
-%s`
+%s
 
 ########################################
 # FILTER WAN ONLY
