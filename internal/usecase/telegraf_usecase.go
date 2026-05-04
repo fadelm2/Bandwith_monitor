@@ -36,31 +36,15 @@ func (c *TelegrafUseCase) GenerateSnmpConfig(ctx context.Context) (string, error
 		return "", err
 	}
 
-	var ipList []string
+	var inputsString strings.Builder
 	for _, agent := range agents {
-		ipList = append(ipList, fmt.Sprintf("    \"%s://%s:%d\"", agent.Protocol, agent.IPAddress, agent.Port))
-	}
-	agentsString := strings.Join(ipList, ",\n")
-
-	// Full template from user
-	template := `########################################
-# AGENT
-########################################
-[agent]
-  interval = "5s"
-  round_interval = true
-  flush_interval = "5s"
-
-########################################
-# INPUT SNMP (SEMUA DISERAGAMKAN)
-########################################
-[[inputs.snmp]]
-  agents = [
-%s
-  ]
+		inputsString.WriteString(fmt.Sprintf(`[[inputs.snmp]]
+  agents = ["%s://%s:%d"]
   community = "greenet-snmp"
   name_override = "network.wan"
   agent_host_tag = "source"
+  timeout = "3s"
+  retries = 2
 
   [[inputs.snmp.field]]
     name = "hostname"
@@ -88,6 +72,23 @@ func (c *TelegrafUseCase) GenerateSnmpConfig(ctx context.Context) (string, error
     [[inputs.snmp.table.field]]
       name = "tx_bytes"
       oid = "IF-MIB::ifHCOutOctets"
+
+`, agent.Protocol, agent.IPAddress, agent.Port))
+	}
+
+	// Full template from user
+	template := `########################################
+# AGENT
+########################################
+[agent]
+  interval = "5s"
+  round_interval = true
+  flush_interval = "5s"
+
+########################################
+# INPUT SNMP (PER IP ADDRESS)
+########################################
+%s`
 
 ########################################
 # FILTER WAN ONLY
@@ -132,7 +133,7 @@ def apply(metric):
   organization = "greenet"
   bucket = "network"
 `
-	return fmt.Sprintf(template, agentsString), nil
+	return fmt.Sprintf(template, inputsString.String()), nil
 }
 
 func (c *TelegrafUseCase) CreateAgent(ctx context.Context, req *model.TelegrafAgentRequest) (*model.TelegrafAgentResponse, error) {
