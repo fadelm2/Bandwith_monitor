@@ -79,7 +79,7 @@ func (c *WanConsumer) Start() {
 		}
 
 		if err != nil {
-			c.Log.Debugf("Failed to parse NATS message: %v. Message data: %s", err, data)
+			c.Log.Warnf("Failed to parse NATS message: %v. Message data: %s", err, data)
 			return
 		}
 
